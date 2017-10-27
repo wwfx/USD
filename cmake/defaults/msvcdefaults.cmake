@@ -22,13 +22,13 @@
 # language governing permissions and limitations under the Apache License.
 #
 
+option(PXR_USE_STATIC_OPENEXR "Link with static OpenEXR libraries" OFF)
+
 # Enable exception handling.
 set(_PXR_CXX_FLAGS "${_PXR_CXX_FLAGS} /EHsc")
 
 # Standards compliant.
-set(_PXR_CXX_FLAGS "${_PXR_CXX_FLAGS} /Zc:rvalueCast
-                                      /Zc:strictStrings
-                                      /Zc:inline")
+set(_PXR_CXX_FLAGS "${_PXR_CXX_FLAGS} /Zc:rvalueCast /Zc:strictStrings /Zc:inline")
 
 # Turn on all but informational warnings.
 set(_PXR_CXX_FLAGS "${_PXR_CXX_FLAGS} /W3")
@@ -81,12 +81,10 @@ _add_define("NOMINMAX")
 # (which doesn't exist on Windows)
 _add_define("YY_NO_UNISTD_H")
 
-# Forces all libraries that have separate source to be linked as
-# DLL's rather than static libraries on Microsoft Windows.
-_add_define("BOOST_ALL_DYN_LINK")
-
 # Need half::_toFloat and half::_eLut.
-_add_define("OPENEXR_DLL")
+if (NOT ${PXR_USE_STATIC_OPENEXR})
+    _add_define("OPENEXR_DLL")
+endif()
 
 # These files require /bigobj compiler flag
 #   Vt/arrayPyBuffer.cpp
