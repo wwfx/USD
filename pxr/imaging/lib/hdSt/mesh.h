@@ -45,6 +45,8 @@ class HdSceneDelegate;
 typedef boost::shared_ptr<class Hd_VertexAdjacency> Hd_VertexAdjacencySharedPtr;
 typedef boost::shared_ptr<class HdSt_MeshTopology> HdSt_MeshTopologySharedPtr;
 typedef boost::shared_ptr<class HdBufferSource> HdBufferSourceSharedPtr;
+typedef boost::shared_ptr<class HdStResourceRegistry>
+    HdStResourceRegistrySharedPtr;
 
 /// A subdivision surface or poly-mesh object.
 ///
@@ -82,6 +84,13 @@ protected:
     HdShaderCodeSharedPtr _GetShaderCode(HdSceneDelegate *sceneDelegate,
                                          HdShader const *shader) const override;
 
+    HdBufferArrayRangeSharedPtr
+    _GetSharedPrimvarRange(uint64_t primvarId,
+                HdBufferSpecVector const &bufferSpecs,
+                HdBufferArrayRangeSharedPtr const &existing,
+                bool * isFirstInstance,
+                HdStResourceRegistrySharedPtr const &resourceRegistry) const;
+
     HdDirtyBits _PropagateDirtyBits(
         HdDirtyBits dirtyBits);
 
@@ -93,6 +102,10 @@ protected:
                          HdMeshReprDesc desc,
                          bool requireSmoothNormals);
 
+    void _UpdateReprGeometricShader(HdSceneDelegate *sceneDelegate,
+                                    _MeshReprConfig::DescArray const &descs,
+                                    HdReprSharedPtr repr);
+
     void _UpdateDrawItemGeometricShader(HdSceneDelegate *sceneDelegate,
                                         HdDrawItem *drawItem,
                                         const HdMeshReprDesc &desc);
@@ -102,7 +115,7 @@ protected:
                            HdDirtyBits *dirtyBits,
                            HdMeshReprDesc desc);
 
-    void _PopulateAdjacency(HdResourceRegistrySharedPtr const &resourceRegistry);
+    void _PopulateAdjacency(HdStResourceRegistrySharedPtr const &resourceRegistry);
 
     void _PopulateVertexPrimVars(HdSceneDelegate *sceneDelegate,
                                  HdDrawItem *drawItem,
@@ -134,12 +147,11 @@ private:
         InstancePrimVar // has to be at the very end
     };
 
-    enum DirtyBits {
+    enum DirtyBits : HdDirtyBits {
         DirtySmoothNormals  = HdChangeTracker::CustomBitsBegin,
         DirtyIndices        = (DirtySmoothNormals << 1),
         DirtyHullIndices    = (DirtyIndices       << 1),
-        DirtyPointsIndices  = (DirtyHullIndices   << 1),
-        DirtyNewRepr        = (DirtyPointsIndices << 1),
+        DirtyPointsIndices  = (DirtyHullIndices   << 1)
     };
 
     HdSt_MeshTopologySharedPtr _topology;
@@ -147,11 +159,10 @@ private:
 
     HdTopology::ID _topologyId;
     HdTopology::ID _vertexPrimvarId;
-    int _customDirtyBitsInUse;
+    HdDirtyBits _customDirtyBitsInUse;
     bool _doubleSided;
     bool _packedNormals;
     HdCullStyle _cullStyle;
-    VtValue _shadingStyle;
 };
 
 

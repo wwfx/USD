@@ -222,26 +222,6 @@ HdSceneDelegate::GetDisplacementShaderSource(SdfPath const &shaderId)
     return std::string("");
 }
 
-std::string
-HdSceneDelegate::GetMixinShaderSource(TfToken const &shaderStageKey)
-{
-    if (shaderStageKey.IsEmpty()) {
-        return std::string("");
-    }
-
-    // TODO: each delegate should provide their own package of mixin shaders
-    // the lighting mixins are fallback only.
-    static std::once_flag firstUse;
-    static std::unique_ptr<GlfGLSLFX> mixinFX;
-   
-    std::call_once(firstUse, [](){
-        std::string filePath = HdPackageLightingIntegrationShader();
-        mixinFX.reset(new GlfGLSLFX(filePath));
-    });
-
-    return mixinFX->GetSource(shaderStageKey);
-}
-
 /*virtual*/
 VtValue
 HdSceneDelegate::GetSurfaceShaderParamValue(SdfPath const &shaderId, 
@@ -255,13 +235,6 @@ HdShaderParamVector
 HdSceneDelegate::GetSurfaceShaderParams(SdfPath const &shaderId)
 {
     return HdShaderParamVector();
-}
-
-/*virtual*/
-SdfPathVector
-HdSceneDelegate::GetSurfaceShaderTextures(SdfPath const &shaderId)
-{
-    return SdfPathVector();
 }
 
 // -----------------------------------------------------------------------//
@@ -290,6 +263,16 @@ HdSceneDelegate::GetTextureResource(SdfPath const& textureId)
 VtValue 
 HdSceneDelegate::GetLightParamValue(SdfPath const &id, 
                                     TfToken const &paramName) 
+{
+    return VtValue();
+}
+
+// -----------------------------------------------------------------------//
+/// \name Material Aspects
+// -----------------------------------------------------------------------//
+
+VtValue 
+HdSceneDelegate::GetMaterialResource(SdfPath const &materialId)
 {
     return VtValue();
 }
@@ -403,6 +386,13 @@ HdSceneDelegate::GetExtComputationPrimVarDesc(SdfPath const& id,
                                               TfToken const& varName)
 {
     return HdExtComputationPrimVarDesc();
+}
+
+/*virtual*/
+std::string
+HdSceneDelegate::GetExtComputationKernel(SdfPath const& id)
+{
+    return std::string();
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE
