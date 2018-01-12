@@ -37,35 +37,36 @@ set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
 set(PXR_THREAD_LIBS "${CMAKE_THREAD_LIBS_INIT}")
 
-find_package(PythonInterp 2.7 REQUIRED)
-
-# --Boost
-find_package(Boost
-    COMPONENTS
-        date_time
-        program_options
-        regex
-        system
-    REQUIRED
-)
-
 if(PXR_ENABLE_PYTHON_SUPPORT)
     # --Python.  We are generally but not completely 2.6 compliant.
-    add_definitions(-DPXR_PYTHON_SUPPORT_ENABLED)
+    find_package(PythonInterp 2.7 REQUIRED)
     find_package(PythonLibs 2.7 REQUIRED)
 
     # --Boost
-    set(_boost_use_static ${Boost_USE_STATIC_LIBS})
-    set(Boost_USE_STATIC_LIBS OFF)
     find_package(Boost
         COMPONENTS
+            date_time
+            program_options
             python
+            regex
+            system
         REQUIRED
     )
-    set(Boost_USE_STATIC_LIBS ${_boost_use_static})
 
     # --Jinja2
     find_package(Jinja2)
+else()
+    find_package(PythonInterp 2.7 REQUIRED)
+ 
+    # --Boost
+    find_package(Boost
+        COMPONENTS
+            date_time
+            program_options
+            regex
+            system
+        REQUIRED
+    )
 endif()
 
 # --TBB
